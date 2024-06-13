@@ -3,7 +3,7 @@ import { List, Slider, Tag, Button, Empty, Image, Spin, message } from "antd";
 import Dragger from "./components/Dragger";
 import { InboxOutlined } from "@ant-design/icons";
 import { useCallback, useMemo, useState } from "react";
-import { domain } from "./constants";
+import { apiUrl, domain } from "./constants";
 
 async function uploadImage(
   file: File,
@@ -14,13 +14,10 @@ async function uploadImage(
   formData.append("file", file);
 
   Object.entries(params).forEach(([key, value]) => formData.append(key, value));
-  const res = await fetch(
-    "https://www.wishufree.com/api/common/compressImage",
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
+  const res = await fetch(apiUrl + "/api/common/compressImage", {
+    method: "POST",
+    body: formData,
+  });
   return res.json().then((res) => res.data);
 }
 
