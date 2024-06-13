@@ -114,16 +114,17 @@ function App() {
         }}
         onChange={setRatio}
       />
-      <Spin spinning={loading}>
-        <Dragger
-          multiple
-          maxCount={1}
-          maxSize={1024 * 50}
-          showFileList={false}
-          request={(file) => handleUpload(file, { ratio })}
-          accept=".jpeg,.jpg,.png"
-        >
-          <div className={styles.dragger}>
+      <Dragger
+        multiple
+        maxCount={1}
+        maxSize={1024 * 50}
+        showFileList={false}
+        request={(file) => handleUpload(file, { ratio })}
+        accept=".jpeg,.jpg,.png"
+        className={styles.dragger}
+      >
+        <Spin spinning={loading}>
+          <div>
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
             </p>
@@ -131,8 +132,8 @@ function App() {
             <p className="ant-upload-hint">支持文件格式: jpeg, jpg, png</p>
             <p className="ant-upload-hint">单个文件最大50M</p>
           </div>
-        </Dragger>
-      </Spin>
+        </Spin>
+      </Dragger>
 
       <List header={<div>文件信息</div>} className={styles.fileList}>
         {fileItems}
