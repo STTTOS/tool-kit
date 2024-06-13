@@ -3,6 +3,7 @@ import { List, Slider, Tag, Button, Empty, Image, Spin, message } from "antd";
 import Dragger from "./components/Dragger";
 import { InboxOutlined } from "@ant-design/icons";
 import { useCallback, useMemo, useState } from "react";
+import { domain } from "./constants";
 
 async function uploadImage(
   file: File,
@@ -51,8 +52,9 @@ function App() {
       throw new Error("500");
     }
 
-    setFileList((pre) => pre.concat(data));
-    return data.url;
+    const url = domain + data.url;
+    setFileList((pre) => pre.concat({ ...data, url }));
+    return url;
   }, []);
 
   const fileItems = useMemo(() => {
@@ -122,7 +124,7 @@ function App() {
           maxSize={1024 * 50}
           showFileList={false}
           request={(file) => handleUpload(file, { ratio })}
-          accept="jpeg,jpg,png"
+          accept=".jpeg,.jpg,.png"
         >
           <div className={styles.dragger}>
             <p className="ant-upload-drag-icon">
