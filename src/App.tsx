@@ -91,7 +91,7 @@ function App() {
             style={{ objectFit: "cover" }}
           />
           <List.Item.Meta
-            title={filename}
+            title={<div className={styles.title}>{filename}</div>}
             description={`大小: ${formatFileSize(compressedSize)}`}
           />
         </List.Item>
