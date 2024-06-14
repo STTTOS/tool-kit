@@ -2,10 +2,11 @@ import styles from "./App.module.less";
 import { List, Slider, Tag, Button, Empty, Image, Spin, message } from "antd";
 import Dragger from "./components/Dragger";
 import { InboxOutlined } from "@ant-design/icons";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiUrl, domain } from "./constants";
 import classNames from "classnames";
 import { getRandomInt } from "./utils";
+import AsyncTaskManager from "./utils/asyncTaskManager";
 async function uploadImage(
   file: File,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,12 +39,12 @@ function formatFileSize(size: number) {
 }
 
 const animationSet = [
-  "animate__fadeInUp",
-  "animate__fadeInDown",
+  // "animate__fadeInUp",
+  // "animate__fadeInDown",
   "animate__fadeInLeft",
   "animate__fadeInRight",
-  "animate__fadeInTopLeft",
-  "animate__fadeInTopRight",
+  // "animate__fadeInTopLeft",
+  // "animate__fadeInTopRight",
   "animate__rubberBand",
   "animate__flipInX",
   "animate__lightSpeedInRight",
@@ -51,6 +52,7 @@ const animationSet = [
   "animate__rotateIn",
   "animate__rollIn",
 ];
+const taskManager = new AsyncTaskManager();
 function App() {
   const [ratio, setRatio] = useState(30);
 
@@ -59,18 +61,18 @@ function App() {
   >([]);
   const [loading, setLoading] = useState(false);
   const handleUpload = useCallback(async (file: File, params: object) => {
-    setLoading(true);
-    const data = await uploadImage(file, params).finally(() =>
-      setLoading(false)
-    );
-    if (!data) {
-      message.error("服务器内部错误");
-      throw new Error("500");
-    }
-
-    const url = domain + data.url;
-    setFileList((pre) => [{ ...data, url, animation: getAnimation() }, ...pre]);
-    return url;
+    taskManager.addTask(async () => {
+      const data = await uploadImage(file, params);
+      if (!data) {
+        message.error("服务器内部错误");
+        throw new Error("500");
+      }
+      const url = domain + data.url;
+      setFileList((pre) => [
+        { ...data, url, animation: getAnimation() },
+        ...pre,
+      ]);
+    });
   }, []);
 
   const getAnimation = () => {
@@ -125,6 +127,12 @@ function App() {
     );
   }, [fileList]);
 
+  useEffect(() => {
+    // taskManager.on("start", () => setLoading(true));
+    // taskManager.on("end", () => setLoading(false));
+    taskManager.onStatusChange(setLoading);
+  }, []);
+
   return (
     <div className={styles.wrapper}>
       <h2>压缩率</h2>
@@ -145,6 +153,7 @@ function App() {
         multiple
         maxCount={1}
         maxSize={1024 * 50}
+        disabled={loading}
         showFileList={false}
         request={(file) => handleUpload(file, { ratio })}
         accept=".jpeg,.jpg,.png"

@@ -38,7 +38,7 @@ export interface IUploadProps extends Omit<UploadProps, 'onChange'> {
    * 图片上传api
    */
   // eslint-disable-next-line no-unused-vars
-  request: (file: File) => Promise<string>
+  request: (file: File) => Promise<string | void>
   /**
    * 回显值, 默认不回显
    */

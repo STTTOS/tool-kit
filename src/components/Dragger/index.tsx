@@ -33,6 +33,7 @@ const getBase64 = (file: RcFile): Promise<string> =>
 const Index: React.FC<IUploadProps> = ({
   children,
   value = "",
+  disabled,
   limitWidth,
   limitHeight,
   minSize = 0,
@@ -55,7 +56,7 @@ const Index: React.FC<IUploadProps> = ({
 
   const [fileList, setFileList] = useState<FileListItem[]>([]);
   const { runAsync: submit, loading } = useRequest(request, { manual: true });
-  const showDisabled = loading || showValue;
+  const shouldDisabled = loading || showValue || disabled;
 
   const handleCancel = () => setPreviewVisible(false);
 
@@ -173,6 +174,8 @@ const Index: React.FC<IUploadProps> = ({
     const { name } = file as File;
     const url = await submit(file as File);
 
+    if (!url) return;
+    
     const newList = fileList
       .concat({
         name,
@@ -216,7 +219,7 @@ const Index: React.FC<IUploadProps> = ({
         {...rest}
         showUploadList
         accept={accept}
-        disabled={showDisabled}
+        disabled={shouldDisabled}
         onRemove={handleRemove}
         onPreview={handlePreview}
         beforeUpload={beforeUpload}
