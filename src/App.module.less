@@ -1,3 +1,5 @@
+@primaryColor: rgb(55, 201, 153);
+
 .wrapper {
   display        : flex;
   padding        : 0 5%;
@@ -32,10 +34,11 @@
       z-index         : 1;
     }
   }
+
 }
 
 .download {
-  color: rgb(55, 201, 153);
+  color: @primaryColor;
 
   &:hover {
     color: rgb(25, 172, 123) !important;
@@ -56,4 +59,9 @@
   -webkit-box-orient: vertical;
   overflow          : hidden;
   text-overflow     : ellipsis;
+}
+
+.list_header {
+  display        : flex;
+  justify-content: space-between;
 }

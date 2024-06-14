@@ -5,7 +5,7 @@ import { InboxOutlined } from "@ant-design/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiUrl, domain } from "./constants";
 import classNames from "classnames";
-import { getRandomInt } from "./utils";
+import { downloadAndZipImages, getRandomInt } from "./utils";
 import AsyncTaskManager from "./utils/asyncTaskManager";
 async function uploadImage(
   file: File,
@@ -23,7 +23,7 @@ async function uploadImage(
   return res.json().then((res) => res.data);
 }
 
-interface FileInfo {
+export interface FileInfo {
   // 单位b
   originSize: number;
   compressedSize: number;
@@ -75,9 +75,13 @@ function App() {
     });
   }, []);
 
+  console.log(fileList);
   const getAnimation = () => {
     const index = getRandomInt(0, animationSet.length - 1);
     return animationSet[index];
+  };
+  const downloadAll = () => {
+    downloadAndZipImages(fileList);
   };
   const fileItems = useMemo(() => {
     if (fileList.length === 0) return <Empty />;
@@ -90,10 +94,16 @@ function App() {
             key={url}
             actions={[
               <Button
-                download={filename}
-                href={url}
+                // download={filename}
+                // href={url}
                 className={styles.download}
                 type="link"
+                onClick={() => {
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = filename;
+                  a.click();
+                }}
               >
                 下载
               </Button>,
@@ -171,7 +181,23 @@ function App() {
         </Spin>
       </Dragger>
 
-      <List header={<div>文件信息</div>} className={styles.fileList}>
+      <List
+        header={
+          <div className={styles.list_header}>
+            <span>文件信息</span>
+            {fileList.length > 0 && (
+              <Button
+                type="link"
+                onClick={downloadAll}
+                className={styles.download}
+              >
+                全部下载
+              </Button>
+            )}
+          </div>
+        }
+        className={styles.fileList}
+      >
         {fileItems}
       </List>
     </div>
