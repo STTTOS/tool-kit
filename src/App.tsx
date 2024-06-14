@@ -4,7 +4,8 @@ import Dragger from "./components/Dragger";
 import { InboxOutlined } from "@ant-design/icons";
 import { useCallback, useMemo, useState } from "react";
 import { apiUrl, domain } from "./constants";
-
+import classNames from "classnames";
+import { getRandomInt } from "./utils";
 async function uploadImage(
   file: File,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,9 +36,27 @@ function formatFileSize(size: number) {
   }
   return (size / 1000 / 1000).toFixed(2) + "Mb";
 }
+
+const animationSet = [
+  "animate__fadeInUp",
+  "animate__fadeInDown",
+  "animate__fadeInLeft",
+  "animate__fadeInRight",
+  "animate__fadeInTopLeft",
+  "animate__fadeInTopRight",
+  "animate__rubberBand",
+  "animate__flipInX",
+  "animate__lightSpeedInRight",
+  "animate__lightSpeedInLeft",
+  "animate__rotateIn",
+  "animate__rollIn",
+];
 function App() {
   const [ratio, setRatio] = useState(30);
-  const [fileList, setFileList] = useState<FileInfo[]>([]);
+
+  const [fileList, setFileList] = useState<
+    Array<FileInfo & { animation: string }>
+  >([]);
   const [loading, setLoading] = useState(false);
   const handleUpload = useCallback(async (file: File, params: object) => {
     setLoading(true);
@@ -50,54 +69,62 @@ function App() {
     }
 
     const url = domain + data.url;
-    setFileList((pre) => pre.concat({ ...data, url }));
+    setFileList((pre) => [{ ...data, url, animation: getAnimation() }, ...pre]);
     return url;
   }, []);
 
+  const getAnimation = () => {
+    const index = getRandomInt(0, animationSet.length - 1);
+    return animationSet[index];
+  };
   const fileItems = useMemo(() => {
     if (fileList.length === 0) return <Empty />;
 
-    return fileList.map(({ url, filename, originSize, compressedSize }) => {
-      return (
-        <List.Item
-          key={url}
-          actions={[
-            <Button
-              download={filename}
-              href={url}
-              className={styles.download}
-              type="link"
-            >
-              下载
-            </Button>,
-          ]}
-          extra={
-            <Tag color="green">
-              -
-              {Math.floor(
-                (Math.abs(originSize - compressedSize) * 100) / originSize
-              )}
-              %
-            </Tag>
-          }
-        >
-          <Image
-            src={url}
-            alt={filename}
-            className={styles.img}
-            width={60}
-            height={60}
-            wrapperClassName={styles.img}
-            style={{ objectFit: "cover" }}
-          />
-          <List.Item.Meta
-            title={<div className={styles.title}>{filename}</div>}
-            description={`大小: ${formatFileSize(compressedSize)}`}
-          />
-        </List.Item>
-      );
-    });
+    return fileList.map(
+      ({ url, filename, originSize, compressedSize, animation }) => {
+        return (
+          <List.Item
+            className={classNames("animate__animated", animation)}
+            key={url}
+            actions={[
+              <Button
+                download={filename}
+                href={url}
+                className={styles.download}
+                type="link"
+              >
+                下载
+              </Button>,
+            ]}
+            extra={
+              <Tag color="green">
+                -
+                {Math.floor(
+                  (Math.abs(originSize - compressedSize) * 100) / originSize
+                )}
+                %
+              </Tag>
+            }
+          >
+            <Image
+              src={url}
+              alt={filename}
+              className={styles.img}
+              width={60}
+              height={60}
+              wrapperClassName={styles.img}
+              style={{ objectFit: "cover" }}
+            />
+            <List.Item.Meta
+              title={<div className={styles.title}>{filename}</div>}
+              description={`大小: ${formatFileSize(compressedSize)}`}
+            />
+          </List.Item>
+        );
+      }
+    );
   }, [fileList]);
+
   return (
     <div className={styles.wrapper}>
       <h2>压缩率</h2>
