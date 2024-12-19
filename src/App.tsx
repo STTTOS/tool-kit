@@ -1,5 +1,15 @@
 import styles from "./App.module.less";
-import { List, Slider, Tag, Button, Empty, Image, Spin, message } from "antd";
+import {
+  List,
+  Slider,
+  Tag,
+  Button,
+  Empty,
+  Image,
+  Spin,
+  message,
+  Tooltip,
+} from "antd";
 import Dragger from "./components/Dragger";
 import { InboxOutlined } from "@ant-design/icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -145,7 +155,9 @@ function App() {
 
   return (
     <div className={styles.wrapper}>
-      <h2>压缩率</h2>
+      <Tooltip title="越小压缩越狠">
+        <h2>压缩程度</h2>
+      </Tooltip>
       <Slider
         className={styles.ratio}
         value={ratio}
@@ -153,7 +165,7 @@ function App() {
           open: true,
         }}
         min={5}
-        max={80}
+        max={100}
         marks={{
           10: <span style={{ color: "red" }}>10</span>,
         }}
